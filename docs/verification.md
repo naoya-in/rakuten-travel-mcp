@@ -45,10 +45,14 @@ The gateway returned `REQUEST_CONTEXT_BODY_HTTP_REFERRER_MISSING` without Origin
 - The pinned MCP SDK 1.32.2 ignores cancellation notifications whose numeric requestId is 0, due to a falsy-value check in its protocol implementation. Cancellation for normal subsequent request IDs and transport closure is supported. No dependency internals were patched. Recheck on SDK upgrades.
 - antislop visual Delivery Gate: not applicable because no graphical UI or visual assets were created. Build/run verification is recorded above.
 
-Credentials are stored in ignored .env and, after the MCP configuration follow-up, in ignored mcp-config.local.json for client env injection. No external repository was created and nothing was pushed.
+Credentials are stored in ignored .env and, after the MCP configuration follow-up, in ignored mcp-config.local.json for client env injection. At the initial local handoff, no external repository had been created and nothing had been pushed.
 
 ## MCP configuration follow-up, 2026-10-25
 
 MCP client env fields now provide application ID, access key, optional affiliate ID and the allowed website URL. The server loads a file only when --env-file or RAKUTEN_ENV_FILE is explicit. A new stdio integration test checks the request produced from all four client inputs, including Referer/Origin, and verifies that an omitted affiliate ID does not inherit a value from the project's local credentials.
 
 All 21 automated tests and the build passed. The updated ignored mcp-config.local.json was also used directly by an MCP client to call get_hotel_chains successfully, without an --env-file argument or implicit project-file loading.
+
+## Public repository check, 2026-10-25
+
+Before publication to https://github.com/naoya-in/rakuten-travel-mcp, all tracked files in both existing commits were checked against the supplied credentials and credential patterns. No matches were found. Local-only .env and *.local.json files were absent from those histories. The GitHub repository was confirmed public with Pages disabled, and no deployment workflows or hosting configuration are present. Only README clone instructions and these publication records changed for publication; application code and the previously tested build are unchanged.

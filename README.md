@@ -7,6 +7,8 @@
 ## 起動
 
 ```sh
+git clone https://github.com/naoya-in/rakuten-travel-mcp.git
+cd rakuten-travel-mcp
 npm ci
 npm run build
 ```

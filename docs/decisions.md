@@ -34,3 +34,9 @@
 - Kept the existing host runtime intact and installed a separate Node.js 24 runtime for this project. Installed the official tunnel-client release after checksum verification, created a named stdio profile, and prepared a systemd unit using an explicit profile path.
 - Per user preference, credentials are passed through service Environment settings rather than a separate access-restricted credential file. Real service settings and host details are local-only ignored artifacts; public templates contain placeholders.
 - On the target host, all 21 automated tests, the build, all eight live MCP tool calls and two resource reads passed. The systemd unit passed verification. The tunnel is not enabled or running until the separate OpenAI runtime key is supplied; readiness and end-to-end ChatGPT execution have not yet been verified.
+
+## Tunnel activation, 2026-10-25
+
+- User supplied the OpenAI runtime key. Stored it only in the ignored local service settings and the requested host's service startup settings; no key was added to Git or command arguments.
+- Doctor passed. Enabled and started the systemd service. Health and readiness both returned HTTP 200; the CLI health check requiring a successful control-plane poll returned result=ok. The service is active with zero restarts.
+- Runtime-key metadata lookup confirmed the configured tunnel exists and includes both a Platform organization and a ChatGPT workspace association. MCP tools were previously verified directly on the host; a request through the ChatGPT connector remains unverified because the available browser session is not signed in to ChatGPT. Server-side tunnel activation is complete; ChatGPT connector registration/testing is the remaining product-side step.

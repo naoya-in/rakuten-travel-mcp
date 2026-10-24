@@ -26,3 +26,11 @@
 - Reviewed both existing commits for the supplied application ID, access key, affiliate ID and credential patterns; no matches found. Neither .env nor mcp-config.local.json is tracked in either commit.
 - No deployment workflows or hosting configuration found. The created repository is public and GitHub Pages is disabled. Publication is a source-code push, with no deployment configured.
 - README now includes clone instructions. Local credential files remain ignored.
+
+## Private-host deployment and Secure MCP Tunnel, 2026-10-25
+
+- User requested SSH deployment with the previously supplied Rakuten credentials and official tunnel-client. OpenAI's current Secure MCP Tunnel documentation confirms that a stdio child can be used directly from ChatGPT through a tunnel; no HTTP transport was added to the MCP.
+- Used OpenAI Docs for current vendor guidance. No additional skills installed, no security-audit or frontend-design enabled. An independent subagent checked the released tunnel-client's stdio environment inheritance and service configuration. The remote common-rule source still contained older wording, so the latest user-provided rules were retained without editing rule files.
+- Kept the existing host runtime intact and installed a separate Node.js 24 runtime for this project. Installed the official tunnel-client release after checksum verification, created a named stdio profile, and prepared a systemd unit using an explicit profile path.
+- Per user preference, credentials are passed through service Environment settings rather than a separate access-restricted credential file. Real service settings and host details are local-only ignored artifacts; public templates contain placeholders.
+- On the target host, all 21 automated tests, the build, all eight live MCP tool calls and two resource reads passed. The systemd unit passed verification. The tunnel is not enabled or running until the separate OpenAI runtime key is supplied; readiness and end-to-end ChatGPT execution have not yet been verified.

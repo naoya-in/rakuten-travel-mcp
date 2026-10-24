@@ -1,0 +1,20 @@
+[Unit]
+Description=Rakuten Travel MCP via OpenAI Secure MCP Tunnel
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/rakuten-travel-mcp
+Environment="RAKUTEN_APPLICATION_ID=your_application_id"
+Environment="RAKUTEN_ACCESS_KEY=your_access_key"
+Environment="RAKUTEN_AFFILIATE_ID=your_affiliate_id"
+Environment="RAKUTEN_REFERER=https://your-registered-site.example/"
+Environment="CONTROL_PLANE_API_KEY=your_runtime_api_key"
+ExecStart=/usr/local/bin/tunnel-client run --config /root/.config/tunnel-client/rakuten-travel.yaml
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

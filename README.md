@@ -146,6 +146,10 @@ npm run test:live
 
 検証結果と依存 SDK の既知の制約は [docs/verification.md](docs/verification.md) に記録します。
 
+## ChatGPT からの接続
+
+OpenAI の Secure MCP Tunnel を使うと、stdio のまま ChatGPT から利用できます。`tunnel-client` がこの MCP を起動し、OpenAI 側との通信を中継します。設定と常駐方法は [deploy/README.md](deploy/README.md) を参照してください。
+
 ## 公式資料
 
 - [楽天トラベル API 一覧](https://webservice.rakuten.co.jp/documentation)

@@ -107,6 +107,39 @@ test('stdio works from an unrelated working directory without stdout noise', asy
   } finally { await client.close(); }
 });
 
+test('MCP env settings configure API authentication and do not inherit the project .env', async () => {
+  const entry = fileURLToPath(new URL('../src/index.ts', import.meta.url));
+  for (const affiliate of [true, false]) {
+    const preload = `globalThis.fetch = async (url, init) => {
+      const query = new URL(url).searchParams;
+      const headers = new Headers(init.headers);
+      return Response.json({
+        applicationIdMatches: query.get('applicationId') === 'configured-app',
+        accessKeyMatches: headers.get('accessKey') === 'configured-secret',
+        affiliateMatches: query.get('affiliateId') === ${affiliate ? "'configured-affiliate'" : 'null'},
+        refererMatches: headers.get('referer') === 'https://registered.example/path',
+        originMatches: headers.get('origin') === 'https://registered.example'
+      });
+    };`;
+    const transport = new StdioClientTransport({ command: process.execPath,
+      args: ['--import', import.meta.resolve('tsx'), '--import', `data:text/javascript,${encodeURIComponent(preload)}`, entry],
+      cwd: tmpdir(), env: {
+        RAKUTEN_APPLICATION_ID: 'configured-app', RAKUTEN_ACCESS_KEY: 'configured-secret',
+        RAKUTEN_REFERER: 'https://registered.example/path',
+        ...(affiliate ? { RAKUTEN_AFFILIATE_ID: 'configured-affiliate' } : {}),
+      }, stderr: 'pipe' });
+    const client = new Client({ name: 'env-settings-test', version: '1.0.0' });
+    try {
+      await client.connect(transport);
+      const response = await client.callTool({ name: 'get_hotel_chains', arguments: {} });
+      assert(!response.isError);
+      assert.deepEqual(response.structuredContent, {
+        applicationIdMatches: true, accessKeyMatches: true, affiliateMatches: true, refererMatches: true, originMatches: true,
+      });
+    } finally { await client.close(); }
+  }
+});
+
 test('stdio EOF closes the server and cancels active and queued requests', async () => {
   const entry = fileURLToPath(new URL('../src/index.ts', import.meta.url));
   const preload = `globalThis.fetch = async (_url, init) => { process.stderr.write('fetch-started\\n'); return new Promise((resolve, reject) => { const timer = setTimeout(() => resolve(Response.json({})), 10000); init.signal.addEventListener('abort', () => { clearTimeout(timer); reject(init.signal.reason); }, {once:true}); }); };`;

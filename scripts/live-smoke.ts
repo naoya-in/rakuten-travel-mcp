@@ -1,9 +1,15 @@
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { isObject } from '../src/client.js';
+import { loadEnvironment } from '../src/config.js';
 
+// The development smoke check explicitly opts into the project's local credentials.
+const developmentEnv = fileURLToPath(new URL('../.env', import.meta.url));
+if (process.env.RAKUTEN_ENV_FILE) loadEnvironment();
+else if (existsSync(developmentEnv)) loadEnvironment(developmentEnv);
 const entry = fileURLToPath(new URL('../dist/index.js', import.meta.url));
 const environment = Object.fromEntries(Object.entries(process.env)
   .filter((entry): entry is [string, string] => entry[0].startsWith('RAKUTEN_') && entry[1] !== undefined));

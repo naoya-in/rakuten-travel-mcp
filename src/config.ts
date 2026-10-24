@@ -1,6 +1,4 @@
-import { existsSync } from 'node:fs';
 import { loadEnvFile } from 'node:process';
-import { fileURLToPath } from 'node:url';
 
 export interface Config {
   applicationId: string;
@@ -11,18 +9,15 @@ export interface Config {
   minIntervalMs: number;
 }
 
-export const defaultEnvPath = fileURLToPath(new URL('../.env', import.meta.url));
-
 export function loadEnvironment(path?: string): void {
   const selected = path ?? process.env.RAKUTEN_ENV_FILE;
   if (selected) loadEnvFile(selected);
-  else if (existsSync(defaultEnvPath)) loadEnvFile(defaultEnvPath);
 }
 
 export function readConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const required = (name: string): string => {
     const value = env[name]?.trim();
-    if (!value) throw new Error(`Set ${name} in the environment or .env file.`);
+    if (!value) throw new Error(`Set ${name} in the MCP server's environment configuration.`);
     return value;
   };
   const integer = (name: string, fallback: number, min: number): number => {

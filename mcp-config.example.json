@@ -2,7 +2,13 @@
   "mcpServers": {
     "rakuten-travel": {
       "command": "node",
-      "args": ["/absolute/path/rakuten-travel-mcp/dist/index.js"]
+      "args": ["/absolute/path/rakuten-travel-mcp/dist/index.js"],
+      "env": {
+        "RAKUTEN_APPLICATION_ID": "your_application_id",
+        "RAKUTEN_ACCESS_KEY": "your_access_key",
+        "RAKUTEN_AFFILIATE_ID": "your_affiliate_id",
+        "RAKUTEN_REFERER": "https://your-registered-site.example/"
+      }
     }
   }
 }

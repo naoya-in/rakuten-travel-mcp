@@ -8,7 +8,7 @@ import { createServer } from './server.js';
 try {
   const { values } = parseArgs({ options: { 'env-file': { type: 'string' }, help: { type: 'boolean' }, version: { type: 'boolean' } } });
   if (values.help) {
-    console.log('rakuten-travel-mcp [--env-file /absolute/path/to/.env]\n\nRuns a stdio MCP server. Requires RAKUTEN_APPLICATION_ID and RAKUTEN_ACCESS_KEY.\nEnvironment values take precedence over the .env file next to the project.');
+    console.log('rakuten-travel-mcp [--env-file /absolute/path/to/.env]\n\nRuns a stdio MCP server. Set RAKUTEN_APPLICATION_ID, RAKUTEN_ACCESS_KEY,\nRAKUTEN_AFFILIATE_ID (optional), and RAKUTEN_REFERER in the MCP server env settings.\nNo .env file is loaded automatically. --env-file or RAKUTEN_ENV_FILE opts in;\nexisting environment values take precedence over the selected file.');
   } else if (values.version) {
     console.log('0.1.0');
   } else {
@@ -21,6 +21,6 @@ try {
     process.stdin.once('end', close);
   }
 } catch {
-  console.error('rakuten-travel-mcp: Startup failed. Check Node.js >=22, CLI arguments, the .env path, and required RAKUTEN_APPLICATION_ID / RAKUTEN_ACCESS_KEY settings.');
+  console.error('rakuten-travel-mcp: Startup failed. Check Node.js >=22, CLI arguments, MCP env settings (RAKUTEN_APPLICATION_ID / RAKUTEN_ACCESS_KEY), and any explicitly selected --env-file path.');
   process.exitCode = 1;
 }

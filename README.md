@@ -9,44 +9,38 @@
 ```sh
 npm ci
 npm run build
-cp .env.example .env
 ```
 
-`.env` を編集します。すでに設定済みの場合は上書きしないでください。
-
-```dotenv
-RAKUTEN_APPLICATION_ID=your_application_id
-RAKUTEN_ACCESS_KEY=your_access_key
-RAKUTEN_AFFILIATE_ID=your_affiliate_id
-RAKUTEN_REFERER=https://your-registered-site.example/
-```
-
-`RAKUTEN_REFERER` には、楽天のアプリ設定の「許可されたWebサイト」に登録した URL を指定します。サーバーはこの URL を Referer に、その origin を Origin ヘッダーに設定します。今回の認証確認では Referer だけでは拒否され、Origin を付けると成功しました。
-
-```sh
-npm start
-```
-
-通常起動では標準出力にログを出しません。標準入出力を MCP 通信専用にするため、ターミナルで起動すると入力待ちになります。
+ビルド後は、次の設定を使って MCP クライアントから起動します。認証情報は MCP の登録時に入力します。`.env` の作成は不要です。
 
 ## MCP クライアントへの設定
 
-次の JSON のパスを実際の場所に置き換え、クライアントの MCP サーバー設定に追加します。`command` には Node.js の実行ファイルの絶対パスも指定できます。
+次の JSON のパスと `env` の値を置き換え、クライアントの MCP サーバー設定に追加します。環境変数の入力欄があるクライアントでは、`env` の4項目をその欄に登録します。`command` には Node.js の実行ファイルの絶対パスも指定できます。
 
 ```json
 {
   "mcpServers": {
     "rakuten-travel": {
       "command": "node",
-      "args": ["/absolute/path/rakuten-travel-mcp/dist/index.js"]
+      "args": ["/absolute/path/rakuten-travel-mcp/dist/index.js"],
+      "env": {
+        "RAKUTEN_APPLICATION_ID": "your_application_id",
+        "RAKUTEN_ACCESS_KEY": "your_access_key",
+        "RAKUTEN_AFFILIATE_ID": "your_affiliate_id",
+        "RAKUTEN_REFERER": "https://your-registered-site.example/"
+      }
     }
   }
 }
 ```
 
-プロジェクト直下の `.env` は、クライアントの作業ディレクトリにかかわらず読み込みます。別のファイルを使う場合は `args` に `"--env-file", "/absolute/path/to/.env"` を追加してください。`RAKUTEN_ENV_FILE` でも指定できます。環境変数にすでに値がある場合は、その値を優先します。
+`RAKUTEN_APPLICATION_ID` と `RAKUTEN_ACCESS_KEY` は必須です。`RAKUTEN_AFFILIATE_ID` は任意で、使わない場合は項目を削除してください。`RAKUTEN_REFERER` には、楽天のアプリ設定の「許可されたWebサイト」に登録した URL を指定します。サーバーはこの URL を Referer に、その origin を Origin ヘッダーに設定します。今回の認証確認では Origin の指定も必要でした。
 
-認証情報を `.env` に置かず、クライアント設定の `env` で渡す方法も使えます。実際の認証情報を含む設定や `.env` は Git に追加しないでください。
+これらはサーバー起動時の設定です。宿の検索など、各ツールを呼び出す際に認証情報を渡す必要はありません。実際の認証情報を含む設定は Git に追加しないでください。
+
+開発時に `.env` を使いたい場合だけ、`.env.example` を参考にファイルを作成し、`args` に `"--env-file", "/absolute/path/to/.env"` を追加します。`RAKUTEN_ENV_FILE` でも指定できます。通常起動では `.env` を自動読込しません。明示したファイルを読む場合も、MCP の `env` に設定した値を優先します。
+
+ターミナルで開発用の設定ファイルを使う起動例は `npm start -- --env-file .env` です。通常起動では標準出力にログを出さず、標準入出力を MCP 通信に使います。
 
 ## ツール
 
@@ -134,7 +128,7 @@ npm start
 | `RAKUTEN_REFERER` | 許可された登録サイト URL。Referer・Origin に使用 | なし |
 | `RAKUTEN_TIMEOUT_MS` | 1回の HTTP 通信のタイムアウト | 15000 |
 | `RAKUTEN_MIN_INTERVAL_MS` | リクエスト開始の最小間隔 | 1000 |
-| `RAKUTEN_ENV_FILE` | 読み込む設定ファイルのパス | プロジェクト直下の `.env` |
+| `RAKUTEN_ENV_FILE` | 明示的に読み込む設定ファイルのパス | 未指定時はファイルを読まない |
 
 ## 開発・検証
 
@@ -146,7 +140,7 @@ npm run test:live
 
 `check` は型検査、通信をモックしたテスト、ビルドを実行します。`check:spec` は公式サイトの入力表を取得し、各 API の入力項目名とバージョンをコードと比較します。表の記載内容や必須条件まで自動判定するものではありません。公式サイトの HTML 変更で失敗した場合も確認が必要です。
 
-`test:live` はビルド済みのサーバーを MCP クライアントから起動し、全8ツールと2つの Resource を確認します。設定済みの認証情報を使って楽天にアクセスし、実データ検証時の開始間隔は2秒に設定します。空室テストは日本時間の実行日の7日後を使うため、空室がなくなれば失敗する場合があります。429 が返った場合は `Retry-After` を確認してから再実行してください。結果は実行時点の確認です。
+`test:live` はビルド済みのサーバーを MCP クライアントから起動し、全8ツールと2つの Resource を確認します。この開発用スクリプトはプロジェクト直下の `.env` を明示的に読み、MCP の `env` 設定として子プロセスに渡します。環境変数や `RAKUTEN_ENV_FILE` による指定も可能です。実データ検証時の開始間隔は2秒に設定します。空室テストは日本時間の実行日の7日後を使うため、空室がなくなれば失敗する場合があります。429 が返った場合は `Retry-After` を確認してから再実行してください。結果は実行時点の確認です。
 
 検証結果と依存 SDK の既知の制約は [docs/verification.md](docs/verification.md) に記録します。
 

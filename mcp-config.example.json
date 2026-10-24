@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "rakuten-travel": {
+      "command": "node",
+      "args": ["/absolute/path/rakuten-travel-mcp/dist/index.js"]
+    }
+  }
+}
